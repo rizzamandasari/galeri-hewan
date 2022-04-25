@@ -10,32 +10,83 @@
 package com.indraazimi.galerihewan.ui.main
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.indraazimi.galerihewan.R
 import com.indraazimi.galerihewan.databinding.FragmentMainBinding
-import com.indraazimi.galerihewan.model.Hewan
 
 class MainFragment : Fragment() {
+    private var isLinearLayoutManager = true
+    private lateinit var recyclerView: RecyclerView
+    private var _binding: FragmentMainBinding? = null
+    private lateinit var myAdapter: MainAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    private fun chooseLayout() {
+        if (isLinearLayoutManager) {
+            recyclerView.layoutManager = LinearLayoutManager(this.requireContext())
+        } else {
+            recyclerView.layoutManager = LinearLayoutManager(this.requireContext())
+        }
+        recyclerView.adapter = MainAdapter()
+    }
+
+    private fun setIcon(menuItem: MenuItem?) {
+        if (menuItem == null)
+            return
+
+        menuItem.icon =
+            if (isLinearLayoutManager)
+                ContextCompat.getDrawable(this.requireContext(), R.drawable.ic_grid_layout)
+            else ContextCompat.getDrawable(this.requireContext(), R.drawable.ic_linear_layout)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.layout_menu, menu)
+
+        val layoutButton = menu.findItem(R.id.action_switch_layout)
+        // Calls code to set the icon based on the LinearLayoutManager of the RecyclerView
+        setIcon(layoutButton)
+        //setHasOptionsMenu(true)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_switch_layout -> {
+                // Sets isLinearLayoutManager (a Boolean) to the opposite value
+                isLinearLayoutManager = !isLinearLayoutManager
+                // Sets layout and icon
+                chooseLayout()
+                setIcon(item)
+
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
-    private lateinit var binding: FragmentMainBinding
-    private lateinit var myAdapter: MainAdapter
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentMainBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         myAdapter = MainAdapter()
-        with(binding.recyclerView) {
+        with(_binding!!.recyclerView) {
             addItemDecoration(
                 DividerItemDecoration(
                     context,
@@ -45,7 +96,8 @@ class MainFragment : Fragment() {
             adapter = myAdapter
             setHasFixedSize(true)
         }
-        return binding.root
+        setHasOptionsMenu(true)
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
