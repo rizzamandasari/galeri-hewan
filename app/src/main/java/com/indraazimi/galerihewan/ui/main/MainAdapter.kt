@@ -7,17 +7,24 @@
  * terhadap project ini tanpa izin pemilik hak cipta.
  */
 
-package com.indraazimi.galerihewan
+package com.indraazimi.galerihewan.ui.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.indraazimi.galerihewan.R
 import com.indraazimi.galerihewan.databinding.ListItemBinding
+import com.indraazimi.galerihewan.model.Hewan
 
-class MainAdapter(
-    private val data: List<Hewan>
-) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
+class MainAdapter: RecyclerView.Adapter<MainAdapter.ViewHolder>() {
+    private val data = mutableListOf<Hewan>()
+
+    fun updateData(newData: List<Hewan>) {
+        data.clear()
+        data.addAll(newData)
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
