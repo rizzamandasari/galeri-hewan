@@ -12,20 +12,27 @@ package com.indraazimi.galerihewan.ui.main
 import android.os.Bundle
 import android.view.*
 import androidx.core.content.ContextCompat
+import androidx.datastore.dataStore
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.indraazimi.galerihewan.R
+import com.indraazimi.galerihewan.data.SettingsDataStore
 import com.indraazimi.galerihewan.databinding.FragmentMainBinding
+import com.indraazimi.galerihewan.data.dataStore
+import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
     private var isLinearLayoutManager = true
-    private lateinit var recyclerView: RecyclerView
+    //private lateinit var recyclerView: RecyclerView
     private var _binding: FragmentMainBinding? = null
     private lateinit var myAdapter: MainAdapter
+    private lateinit var layoutDataStore: SettingsDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,11 +41,11 @@ class MainFragment : Fragment() {
 
     private fun chooseLayout() {
         if (isLinearLayoutManager) {
-            recyclerView.layoutManager = LinearLayoutManager(this.requireContext())
+            _binding!!.recyclerView.layoutManager = LinearLayoutManager(this.requireContext())
         } else {
-            recyclerView.layoutManager = LinearLayoutManager(this.requireContext())
+            _binding!!.recyclerView.layoutManager = GridLayoutManager(this.requireContext(),2)
         }
-        recyclerView.adapter = MainAdapter()
+        //recyclerView.adapter = MainAdapter()
     }
 
     private fun setIcon(menuItem: MenuItem?) {
@@ -65,6 +72,11 @@ class MainFragment : Fragment() {
             R.id.action_switch_layout -> {
                 // Sets isLinearLayoutManager (a Boolean) to the opposite value
                 isLinearLayoutManager = !isLinearLayoutManager
+
+                lifecycleScope.launch {
+                    layoutDataStore.saveLayoutToPreferencesStore(isLinearLayoutManager, requireContext())
+                }
+
                 // Sets layout and icon
                 chooseLayout()
                 setIcon(item)
@@ -101,6 +113,16 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        layoutDataStore = SettingsDataStore(requireContext().dataStore)
+
+        layoutDataStore.preferenceFlow.asLiveData().observe(viewLifecycleOwner, {  })
+        layoutDataStore.preferenceFlow.asLiveData().observe(viewLifecycleOwner, { value ->
+            isLinearLayoutManager = value
+            chooseLayout()
+            // Redraw the menu
+            activity?.invalidateOptionsMenu()
+        })
+        // observe perubahan data
         super.onViewCreated(view, savedInstanceState)
         viewModel.getData().observe(viewLifecycleOwner, {
             myAdapter.updateData(it)

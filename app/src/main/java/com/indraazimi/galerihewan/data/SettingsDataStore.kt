@@ -23,7 +23,7 @@ import java.io.IOException
 
 private const val LAYOUT_PREFERENCES_NAME = "layout_preferences"
 
-private val Context.dataStore : DataStore<Preferences> by preferencesDataStore(
+val Context.dataStore : DataStore<Preferences> by preferencesDataStore(
     name = LAYOUT_PREFERENCES_NAME
 )
 
