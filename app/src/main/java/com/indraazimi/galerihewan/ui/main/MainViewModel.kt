@@ -45,13 +45,13 @@ class MainViewModel : ViewModel() {
     fun getData(): LiveData<List<Hewan>> = data
 
     fun scheduleUpdater(app: Application) {
-        val request = OneTimeWorkRequestBuilder<UpdateWorker>()
+        val req = OneTimeWorkRequestBuilder<UpdateWorker>()
             .setInitialDelay(1, java.util.concurrent.TimeUnit.MINUTES)
             .build()
         WorkManager.getInstance(app).enqueueUniqueWork(
             "updater",
             ExistingWorkPolicy.REPLACE,
-            request
+            req
         )
     }
 }
