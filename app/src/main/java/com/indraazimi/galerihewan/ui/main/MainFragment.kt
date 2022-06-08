@@ -127,5 +127,7 @@ class MainFragment : Fragment() {
         viewModel.getData().observe(viewLifecycleOwner, {
             myAdapter.updateData(it)
         })
+
+        viewModel.scheduleUpdater(requireActivity().application)
     }
 }
